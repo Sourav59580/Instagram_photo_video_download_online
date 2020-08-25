@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid pl-0 text-center">
+        <div class="row d-md-block d-none">
+            <div class="col-4" style="background: #1AEBB6;height: 100vh;"></div>
+            <div class="col-8"></div>
+        </div>
+        <div class="container shadow-lg"
+            style="height: 90vh;position: absolute; z-index: 10000;top: 50%;left: 50%;transform: translate(-50%, -50%);">
+
+            <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-8 px-4 py-4">
+
+                    <div class="mt-4">
+                        <form class="url-from">
+                            <div class="input-group mb-4">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text border-0 px-4 text-light"
+                                        style="background-color:#30f250;"><i class="fa fa-plus"></i></span>
+                                </div>
+                                <input type="text" name="url" id="url" placeholder="Copy and paste link here."
+                                    class="form-control border-0 bg-light shadow-sm" required>
+                            </div>
+                            <button class="btn px-4 text-light shadow-sm mb-4" type="submit"
+                                style="left:45%;background-color:#007AFF"><i class="fa fa-cloud-download  mr-2"></i>Get
+                                link video</button>
+                        </form>
+                    </div>
+
+                    <div class="container bg-white shadow-sm">
+                        <div class="dummyData" style="opacity: 0;">NO Data</div>
+                        <div class="table-responsive-md">
+                            <table class="table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Content</th>
+                                        <th>Categories</th>
+                                        <th>Link download</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="instagramcontent d-none">
+                                        <td>
+                                            <div style="width: 300px;" class="contentDiv overflow-hidden"></div>
+                                        </td>
+                                        <td class="category"></td>
+                                        <td><a class="btn btn-sm px-3 text-light shadow-sm instalink"
+                                                style="background-color:#0ceb31" download="download"><i
+                                                    class="fa fa-cloud-download  mr-2"></i><span class="btn-text"></span></a></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="d-none">
+                                    <tr>
+                                        <td><i class="fa fa-spinner fa-spin" style="font-size:32px"></i></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="container d-none">
+                        <a class="btn btn-success instalink" download="">Download link</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        $(document).ready(function () {
+            var validURL = "https:\/\/www.instagram.com\/(.+?)/";
+            $(".url-from").submit(function (e) {
+                e.preventDefault();
+                var url = $("#url").val();
+
+                if (url['match'](validURL)) {
+                    const sonu = document.querySelector('.dummyData');
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(result => {
+
+                            sonu.innerHTML = result;
+                            var videoObj = document.querySelector("meta[property='og:video']");
+                            if (videoObj) {
+                                var videosrc = $('meta[property="og:video"]').attr('content');
+                                $.ajax({
+                                    url: videosrc,
+                                    xhrFields:{
+                                        responseType: 'blob'
+                                    },
+                                    beforeSend: function(){
+                                        $("tfoot").removeClass("d-none");
+                                    },
+                                    success: function(data){            
+                                        var blobData = data;
+                                        var url = window.URL || window.webkitURL;
+                                        var src = url.createObjectURL(data);
+                                        $("tfoot").addClass("d-none");
+                                        $(".instagramcontent").removeClass("d-none");
+                                        $(".contentDiv").html("");
+                        
+                                        var video = $('<video />', {
+                                            id: 'video',
+                                            src: src,
+                                            type: 'video/webm',
+                                            controls: true
+                                          });
+                                        $(".contentDiv").append(video);
+
+                                        $(".category").html("Video (MP4)");
+                                        $(".btn-text").html("Download Video")
+                                        $(".instalink").attr('href',src);
+                                    }
+                            });
+
+                            } else {
+                                var imagesrc = $('meta[property="og:image"]').attr('content');
+                                //$(".instalink").attr('href',imageObj);
+
+                                $.ajax({
+                                    url: imagesrc,
+                                    xhrFields:{
+                                        responseType: 'blob'
+                                    },
+                                    beforeSend: function(){
+                                        $("tfoot").removeClass("d-none");
+                                    },
+                                    success: function(data){            
+                                        var blobData = data;
+                                        var url = window.URL || window.webkitURL;
+                                        var src = url.createObjectURL(data);
+                                        $("tfoot").addClass("d-none");
+                                        $(".instagramcontent").removeClass("d-none");
+                                        $(".contentDiv").html("");
+                                        var img = document.createElement("IMG");
+                                        img.className ="rounded";
+                                        img.style.width = "100%"
+                                        img.src = src;
+                                        $(".contentDiv").append(img);
+                                        $(".category").html("Image (JPEG)");
+                                        $(".btn-text").html("Download Image")
+                                        $(".instalink").attr('href',src);
+                                    }
+                            });
+                            }
+
+                        })
+
+                } else {
+                    alert("Not matched");
+                }
+
+            })
+
+        })
+    </script>
+
+</body>
+
+</html>
